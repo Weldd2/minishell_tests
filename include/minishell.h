@@ -4,8 +4,18 @@
 # include <stdio.h>
 # include <stdlib.h>
 # include <string.h>
+# include <ctype.h>
 # include <readline/readline.h>
 # include <readline/history.h>
+
+# ifdef DEBUG
+#  include <assert.h>
+#  define EX(fmt, ...) \
+    do { \
+        fprintf(stderr, "%s:%d, %s: " fmt "\n", __FILE__, __LINE__, __func__, ##__VA_ARGS__); \
+        abort(); \
+    } while (0)
+# endif
 
 typedef enum e_node_type
 {
@@ -13,14 +23,21 @@ typedef enum e_node_type
 	E_LEAF
 }	t_node_type;
 
-typedef enum e_ope
+typedef enum e_ope_type
 {
-	PIPE,
-	REDIR_IN,
-	HEREDOC,
-	REDIR_OUT,
-	APPEND
-}	t_ope;
+	E_PIPE,
+	E_REDIR_IN,
+	E_HEREDOC,
+	E_REDIR_OUT,
+	E_APPEND,
+	E_OPE_TYPE_LIMIT
+}	t_ope_type;
+
+typedef enum e_leaf_type
+{
+	E_FUNC,
+	E_FILENAME
+}	t_leaf_type;
 
 typedef struct s_ast
 {
@@ -29,12 +46,20 @@ typedef struct s_ast
 	{
 		struct
 		{
-			char	*cmd;
-			char	**args;
+			t_leaf_type	type;
+			union
+			{
+				struct
+				{
+					char	*cmd;
+					char	**args;
+				} func;
+				char *filename;
+			};
 		} leaf;
 		struct
 		{
-			t_ope			op;
+			t_ope_type		type;
 			struct s_ast	*left;
 			struct s_ast	*right;
 		} ope;
@@ -44,5 +69,7 @@ typedef struct s_ast
 
 void print_ast(t_ast *ast, int indent);
 t_ast	*create_ast(char *input, t_ast *prev);
+t_ope_type	string_to_ope_type(char *word);
+const char	*ope_type_to_string(t_ope_type type);
 
 #endif
