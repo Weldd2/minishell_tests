@@ -53,6 +53,7 @@ typedef struct s_ast
 				{
 					char	*cmd;
 					char	**args;
+					int		nb_args;
 				} func;
 				char *filename;
 			};

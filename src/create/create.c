@@ -32,6 +32,8 @@ t_ast *create_leaf(char *s, t_ast *prev)
 	{
 		leaf->leaf.type = E_FUNC;
 		leaf->leaf.func.cmd = s;
+		leaf->leaf.func.nb_args = 0;
+		leaf->leaf.func.args = NULL;
 	}
 	else
 	{
@@ -68,11 +70,25 @@ t_ast *create_ast(char *input, t_ast *prev)
 	}
 	else
 	{
-		t_ast *leaf = create_leaf(word, prev);
-		if (!prev)
-			return (create_ast(input, leaf));
-		if (prev->ope.left && !prev->ope.right)
-			prev->ope.right = leaf;
+		// si c'est un argument
+		if (prev && prev->type == E_LEAF && prev->leaf.type == E_FUNC)
+		{
+			prev->leaf.func.nb_args++;
+			prev->leaf.func.args = realloc(prev->leaf.func.args, prev->leaf.func.nb_args * sizeof(char *));
+			prev->leaf.func.args[prev->leaf.func.nb_args - 1] = word;
+			return (create_ast(input, prev));
+		}
+		else
+		{
+			t_ast *leaf = create_leaf(word, prev);
+			if (!prev)
+				return (create_ast(input, leaf));
+			if (prev->ope.left && !prev->ope.right)
+				prev->ope.right = leaf;
+		}
 		return (prev);
 	}
 }
+
+// TODO
+// > file -> créé un fichier
