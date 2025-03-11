@@ -62,7 +62,8 @@ t_ast *create_ast(char *input, t_ast *prev)
 	{
 		t_ast *ope = create_ope(word);
 		// Affecte la feuille gauche.
-		ope->ope.left = prev;
+		if (prev)
+			ope->ope.left = prev;
 		create_ast(input, ope);
 		free(get_next_word(&input));
 		// Création du noeud parent (s'il y en a un).
@@ -85,6 +86,9 @@ t_ast *create_ast(char *input, t_ast *prev)
 				return (create_ast(input, leaf));
 			if (prev->ope.left && !prev->ope.right)
 				prev->ope.right = leaf;
+			if (!prev->ope.left)
+				prev->ope.left = leaf;
+			create_ast(input, leaf);
 		}
 		return (prev);
 	}
@@ -92,3 +96,6 @@ t_ast *create_ast(char *input, t_ast *prev)
 
 // TODO
 // > file -> créé un fichier
+// cat file | < file grep -> remplace l'entrée de grep par file
+// < file cmd -> == cat file | cmd
+// gerer la detection file ou func -> cause des problemes notamment pour < file cmd
