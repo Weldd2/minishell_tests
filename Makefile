@@ -77,8 +77,10 @@ $(OBJDIR)/%.o: %.c
 	@mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) $(INCS) -c $< -o $@
 
+# gdb: debug
+#	 gdb -ex "b create_ast" -ex "display input" ./$(NAME)
 gdb: debug
-	gdb -ex "b create_ast" -ex "display input" ./$(NAME)
+	gdb ./$(NAME)
 
 # -----------------------------------------------------------------------------
 # Nettoyage des fichiers objets
@@ -108,7 +110,7 @@ install:
 # -----------------------------------------------------------------------------
 # Règles de debug, valgrind
 # -----------------------------------------------------------------------------
-VALGRIND_FLAGS = --leak-check=full --show-leak-kinds=all --track-origins=yes
+VALGRIND_FLAGS = --leak-check=full --show-leak-kinds=all --track-origins=yes --suppressions=./rl.supp
 TEST_ARGUMENTS = 
 
 valgrind: CFLAGS += -g

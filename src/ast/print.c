@@ -18,8 +18,12 @@ void print_ast(t_ast *ast, int indent)
 			printf("name : %s", ast->leaf.func.cmd);
 			if (ast->leaf.func.nb_args != 0)
 				printf(", args [%d]: ", ast->leaf.func.nb_args);
-			for (int j = 0; j < ast->leaf.func.nb_args; j++)
-				printf("%s ", ast->leaf.func.args[j]);
+			t_args	*current = ast->leaf.func.args;
+			while (current)
+			{
+				printf("%s ", current->arg);
+				current = current->next;
+			}
 		}
 		else
 			printf("name : %s", ast->leaf.filename);

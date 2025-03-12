@@ -8,6 +8,7 @@
 # include <ctype.h>
 # include <readline/readline.h>
 # include <readline/history.h>
+# include "mgc.h"
 
 # ifdef DEBUG
 #  include <assert.h>
@@ -40,6 +41,12 @@ typedef enum e_leaf_type
 	E_FILENAME
 }	t_leaf_type;
 
+typedef struct s_args
+{
+	struct s_args	*next;
+	char			*arg;
+}	t_args;
+
 typedef struct s_ast
 {
 	t_node_type	type;
@@ -53,7 +60,7 @@ typedef struct s_ast
 				struct
 				{
 					char	*cmd;
-					char	**args;
+					t_args	*args;
 					int		nb_args;
 				} func;
 				char *filename;

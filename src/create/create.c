@@ -11,7 +11,7 @@ char *get_next_word(char **input)
 		(*input)++;
 	while ((*input)[len] && !isspace((*input)[len]))
 		len++;
-	word = malloc(sizeof(char) * (len + 1));
+	word = mgc_alloc(sizeof(char), (len + 1));
 	if (!word)
 		return (NULL);
 	i = -1;
@@ -26,7 +26,7 @@ char *get_next_word(char **input)
 
 t_ast *create_leaf(char *s, t_ast *prev)
 {
-	t_ast *leaf = malloc(sizeof(t_ast));
+	t_ast *leaf = mgc_alloc(sizeof(t_ast), 1);
 	leaf->type = E_LEAF;
 	if (is_filename(prev))
 	{
@@ -45,12 +45,32 @@ t_ast *create_leaf(char *s, t_ast *prev)
 
 t_ast *create_ope(char *s)
 {
-	t_ast *ope = malloc(sizeof(t_ast));
+	t_ast *ope = mgc_alloc(sizeof(t_ast), 1);
 	ope->type = E_OPE;
 	ope->ope.type = string_to_ope_type(s);
 	ope->ope.left = NULL;
 	ope->ope.right = NULL;
 	return (ope);
+}
+
+void	add_arg(t_ast *prev, char *word)
+{
+	t_args	*current;
+
+	prev->leaf.func.nb_args++;
+	if (!prev->leaf.func.args)
+	{
+		prev->leaf.func.args = mgc_alloc(sizeof(t_args), 1);
+		prev->leaf.func.args->next = NULL;
+		prev->leaf.func.args->arg = word;
+		return ;
+	}
+	current = prev->leaf.func.args;
+	while (current->next)
+		current = current->next;
+	current->next = mgc_alloc(sizeof(t_args), 1);
+	current->next->next = NULL;
+	current->next->arg = word;
 }
 
 t_ast *create_ast(char *input, t_ast *prev)
@@ -61,12 +81,18 @@ t_ast *create_ast(char *input, t_ast *prev)
 	if (string_to_ope_type(word) != E_OPE_TYPE_LIMIT)
 	{
 		t_ast *ope = create_ope(word);
-		// Affecte la feuille gauche.
-		if (prev)
-			ope->ope.left = prev;
+		// set prev comme parent de ope
+		if (prev && prev->type == E_OPE && !prev->ope.right)
+			prev->ope.right = ope;
+		else
+		{
+			// set ope comme parent de prev
+			if (prev)
+				ope->ope.left = prev;
+		}
 		create_ast(input, ope);
-		free(get_next_word(&input));
-		// Création du noeud parent (s'il y en a un).
+		get_next_word(&input);
+		// Création du noeud suivant (s'il y en a un).
 		return (create_ast(input, ope));
 	}
 	else
@@ -74,9 +100,7 @@ t_ast *create_ast(char *input, t_ast *prev)
 		// si c'est un argument
 		if (prev && prev->type == E_LEAF && prev->leaf.type == E_FUNC)
 		{
-			prev->leaf.func.nb_args++;
-			prev->leaf.func.args = realloc(prev->leaf.func.args, prev->leaf.func.nb_args * sizeof(char *));
-			prev->leaf.func.args[prev->leaf.func.nb_args - 1] = word;
+			add_arg(prev, word);
 			return (create_ast(input, prev));
 		}
 		else
@@ -95,7 +119,4 @@ t_ast *create_ast(char *input, t_ast *prev)
 }
 
 // TODO
-// > file -> créé un fichier
-// cat file | < file grep -> remplace l'entrée de grep par file
-// < file cmd -> == cat file | cmd
-// gerer la detection file ou func -> cause des problemes notamment pour < file cmd
+// cmd > file arg1
