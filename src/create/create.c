@@ -28,17 +28,17 @@ t_ast *create_leaf(char *s, t_ast *prev)
 {
 	t_ast *leaf = malloc(sizeof(t_ast));
 	leaf->type = E_LEAF;
-	if (!prev || (prev->type == E_OPE && prev->ope.type == E_PIPE))
+	if (is_filename(prev))
+	{
+		leaf->leaf.type = E_FILENAME;
+		leaf->leaf.filename = s;
+	}
+	else
 	{
 		leaf->leaf.type = E_FUNC;
 		leaf->leaf.func.cmd = s;
 		leaf->leaf.func.nb_args = 0;
 		leaf->leaf.func.args = NULL;
-	}
-	else
-	{
-		leaf->leaf.type = E_FILENAME;
-		leaf->leaf.filename = s;
 	}
 	return (leaf);
 }

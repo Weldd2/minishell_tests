@@ -4,6 +4,7 @@
 # include <stdio.h>
 # include <stdlib.h>
 # include <string.h>
+# include <stdbool.h>
 # include <ctype.h>
 # include <readline/readline.h>
 # include <readline/history.h>
@@ -72,5 +73,6 @@ void print_ast(t_ast *ast, int indent);
 t_ast	*create_ast(char *input, t_ast *prev);
 t_ope_type	string_to_ope_type(char *word);
 const char	*ope_type_to_string(t_ope_type type);
+bool	is_filename(t_ast *node);
 
 #endif
