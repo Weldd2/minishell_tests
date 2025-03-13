@@ -24,99 +24,81 @@ char *get_next_word(char **input)
 	return (word);
 }
 
-t_ast *create_leaf(char *s, t_ast *prev)
+t_node_type	get_node_type(char *word)
 {
-	t_ast *leaf = mgc_alloc(sizeof(t_ast), 1);
-	leaf->type = E_LEAF;
-	if (is_filename(prev))
-	{
-		leaf->leaf.type = E_FILENAME;
-		leaf->leaf.filename = s;
-	}
-	else
-	{
-		leaf->leaf.type = E_FUNC;
-		leaf->leaf.func.cmd = s;
-		leaf->leaf.func.nb_args = 0;
-		leaf->leaf.func.args = NULL;
-	}
-	return (leaf);
+	if (strcmp(word, "|") == 0)
+		return (E_OPE);
+	if (strcmp(word, ">") == 0)
+		return (E_OPE);
+	if (strcmp(word, ">>") == 0)
+		return (E_OPE);
+	if (strcmp(word, "<") == 0)
+		return (E_OPE);
+	if (strcmp(word, "<<") == 0)
+		return (E_OPE);
+	return (E_LEAF);
 }
 
-t_ast *create_ope(char *s)
+t_ast	*create_ast(t_ast_data *data)
 {
-	t_ast *ope = mgc_alloc(sizeof(t_ast), 1);
-	ope->type = E_OPE;
-	ope->ope.type = string_to_ope_type(s);
-	ope->ope.left = NULL;
-	ope->ope.right = NULL;
-	return (ope);
-}
+	char		*word;
+	t_node_type	node_type;
 
-void	add_arg(t_ast *prev, char *word)
-{
-	t_args	*current;
-
-	prev->leaf.func.nb_args++;
-	if (!prev->leaf.func.args)
-	{
-		prev->leaf.func.args = mgc_alloc(sizeof(t_args), 1);
-		prev->leaf.func.args->next = NULL;
-		prev->leaf.func.args->arg = word;
-		return ;
-	}
-	current = prev->leaf.func.args;
-	while (current->next)
-		current = current->next;
-	current->next = mgc_alloc(sizeof(t_args), 1);
-	current->next->next = NULL;
-	current->next->arg = word;
-}
-
-t_ast *create_ast(char *input, t_ast *prev)
-{
-	char *word = get_next_word(&input);
+	word = get_next_word(&data->input);
 	if (!word || strlen(word) == 0)
-		return (prev);
-	if (string_to_ope_type(word) != E_OPE_TYPE_LIMIT)
-	{
-		t_ast *ope = create_ope(word);
-		// set prev comme parent de ope
-		if (prev && prev->type == E_OPE && !prev->ope.right)
-			prev->ope.right = ope;
-		else
-		{
-			// set ope comme parent de prev
-			if (prev)
-				ope->ope.left = prev;
-		}
-		create_ast(input, ope);
-		get_next_word(&input);
-		// Création du noeud suivant (s'il y en a un).
-		return (create_ast(input, ope));
-	}
-	else
-	{
-		// si c'est un argument
-		if (prev && prev->type == E_LEAF && prev->leaf.type == E_FUNC)
-		{
-			add_arg(prev, word);
-			return (create_ast(input, prev));
-		}
-		else
-		{
-			t_ast *leaf = create_leaf(word, prev);
-			if (!prev)
-				return (create_ast(input, leaf));
-			if (prev->ope.left && !prev->ope.right)
-				prev->ope.right = leaf;
-			if (!prev->ope.left)
-				prev->ope.left = leaf;
-			create_ast(input, leaf);
-		}
-		return (prev);
-	}
+		return (data->root);
+	node_type = get_node_type(word);
+	if (node_type == E_LEAF)
+		return (handle_leaf(data, word));
+	if (node_type == E_OPE)
+		return (handle_ope(data, word));
+	return (NULL);
 }
+
+// t_ast *create_ast(char *input, t_ast *prev)
+// {
+// 	char *word = get_next_word(&input);
+// 	if (!word || strlen(word) == 0)
+// 		return (prev);
+// 	if (string_to_ope_type(word) != E_OPE_TYPE_LIMIT)
+// 	{
+// 		t_ast *ope = create_ope(word);
+// 		// set prev comme parent de ope
+// 		if (prev && prev->type == E_OPE && !prev->ope.right)
+// 			prev->ope.right = ope;
+// 		else
+// 		{
+// 			// set ope comme parent de prev
+// 			if (prev)
+// 				ope->ope.left = prev;
+// 		}
+// 		create_ast(input, ope);
+// 		get_next_word(&input);
+// 		// Création du noeud suivant (s'il y en a un).
+// 		return (create_ast(input, ope));
+// 	}
+// 	else
+// 	{
+// 		// si c'est un argument
+// 		if (prev && prev->type == E_LEAF && prev->leaf.type == E_FUNC)
+// 		{
+// 			add_arg(prev, word);
+// 			return (create_ast(input, prev));
+// 		}
+// 		else
+// 		{
+// 			t_ast *leaf = create_leaf(word, prev);
+// 			if (!prev)
+// 				return (create_ast(input, leaf));
+// 			if (prev->ope.left && !prev->ope.right)
+// 				prev->ope.right = leaf;
+// 			if (!prev->ope.left)
+// 				prev->ope.left = leaf;
+// 			create_ast(input, leaf);
+// 		}
+// 		return (prev);
+// 	}
+// }
 
 // TODO
 // cmd > file arg1

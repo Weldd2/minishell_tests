@@ -38,7 +38,7 @@ typedef enum e_ope_type
 typedef enum e_leaf_type
 {
 	E_FUNC,
-	E_FILENAME
+	E_FILENAME,
 }	t_leaf_type;
 
 typedef struct s_args
@@ -75,11 +75,21 @@ typedef struct s_ast
 	};
 }	t_ast;
 
+typedef struct s_ast_data
+{
+	char	*input;
+	t_ast	*prev;
+	t_ast	*root;
+	t_ast	*last_ope;
+}	t_ast_data;
 
-void print_ast(t_ast *ast, int indent);
-t_ast	*create_ast(char *input, t_ast *prev);
+
+void		print_ast(t_ast *ast, int indent);
+t_ast		*create_ast(t_ast_data *data);
+t_ast		*handle_leaf(t_ast_data *data, char *word);
+t_ast		*handle_ope(t_ast_data *data, char *word);
 t_ope_type	string_to_ope_type(char *word);
 const char	*ope_type_to_string(t_ope_type type);
-bool	is_filename(t_ast *node);
+bool		is_filename(t_ast *node);
 
 #endif

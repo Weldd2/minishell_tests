@@ -77,10 +77,8 @@ $(OBJDIR)/%.o: %.c
 	@mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) $(INCS) -c $< -o $@
 
-# gdb: debug
-#	 gdb -ex "b create_ast" -ex "display input" ./$(NAME)
 gdb: debug
-	gdb ./$(NAME)
+	gdb -ex "b create_ast" ./$(NAME)
 
 # -----------------------------------------------------------------------------
 # Nettoyage des fichiers objets
