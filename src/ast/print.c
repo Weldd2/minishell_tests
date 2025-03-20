@@ -1,6 +1,29 @@
 #include "minishell.h"
 
-void print_ast(t_ast *ast, int indent)
+static void	print_args(t_args *current)
+{
+	if (!current)
+		return ;
+	printf("%s ", current->arg);
+	print_args(current->next);
+}
+
+static void	print_leaf(t_ast *ast)
+{
+	printf("Leaf -> ");
+	if (ast->s_leaf.type == E_FILENAME)
+		printf("type : filename, name %s", ast->s_leaf.filename);
+	else
+	{
+		printf("type : func, name %s", ast->s_leaf.s_func.cmd);
+		if (ast->s_leaf.s_func.nb_args != 0)
+			printf(", args [%d]: ", ast->s_leaf.s_func.nb_args);
+		print_args(ast->s_leaf.s_func.args);
+	}
+	printf("\n");
+}
+
+void	print_ast(t_ast *ast, int indent)
 {
 	int	i;
 
@@ -10,29 +33,11 @@ void print_ast(t_ast *ast, int indent)
 	while (++i < indent)
 		printf("  ");
 	if (ast->type == E_LEAF)
-	{
-		printf("Leaf -> ");
-		printf("type : %s, ", ast->leaf.type == E_FILENAME ? "filename" : "command");
-		if (ast->leaf.type == E_FUNC)
-		{
-			printf("name : %s", ast->leaf.func.cmd);
-			if (ast->leaf.func.nb_args != 0)
-				printf(", args [%d]: ", ast->leaf.func.nb_args);
-			t_args	*current = ast->leaf.func.args;
-			while (current)
-			{
-				printf("%s ", current->arg);
-				current = current->next;
-			}
-		}
-		else
-			printf("name : %s", ast->leaf.filename);
-		printf("\n");
-	}
+		print_leaf(ast);
 	else if (ast->type == E_OPE)
 	{
-		printf("Operator: %s\n", ope_type_to_string(ast->ope.type));
-		print_ast(ast->ope.left, indent + 1);
-		print_ast(ast->ope.right, indent + 1);
+		printf("Operator: %s\n", ope_type_to_string(ast->s_ope.type));
+		print_ast(ast->s_ope.left, indent + 1);
+		print_ast(ast->s_ope.right, indent + 1);
 	}
 }

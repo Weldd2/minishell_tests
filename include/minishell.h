@@ -10,15 +10,6 @@
 # include <readline/history.h>
 # include "mgc.h"
 
-# ifdef DEBUG
-#  include <assert.h>
-#  define EX(fmt, ...) \
-    do { \
-        fprintf(stderr, "%s:%d, %s: " fmt "\n", __FILE__, __LINE__, __func__, ##__VA_ARGS__); \
-        abort(); \
-    } while (0)
-# endif
-
 typedef enum e_node_type
 {
 	E_OPE,
@@ -62,16 +53,16 @@ typedef struct s_ast
 					char	*cmd;
 					t_args	*args;
 					int		nb_args;
-				} func;
-				char *filename;
+				}	s_func;
+				char	*filename;
 			};
-		} leaf;
+		}	s_leaf;
 		struct
 		{
 			t_ope_type		type;
 			struct s_ast	*left;
 			struct s_ast	*right;
-		} ope;
+		}	s_ope;
 	};
 }	t_ast;
 
@@ -83,8 +74,8 @@ typedef struct s_ast_data
 	t_ast	*last_ope;
 }	t_ast_data;
 
-
 void		print_ast(t_ast *ast, int indent);
+char		*get_next_word(char **input);
 t_ast		*create_ast(t_ast_data *data);
 t_ast		*handle_leaf(t_ast_data *data, char *word);
 t_ast		*handle_ope(t_ast_data *data, char *word);

@@ -15,6 +15,8 @@ int	main(void)
 		ast_data = mgc_alloc(sizeof(t_ast_data), 1);
 		ast_data->input = input;
 		ast_data->last_ope = NULL;
+		ast_data->prev = NULL;
+		ast_data->root = NULL;
 		print_ast(create_ast(ast_data), 0);
 	}
 	mgc_free();

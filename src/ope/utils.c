@@ -1,6 +1,6 @@
 #include "minishell.h"
 
-static const char	*ope_strings[E_OPE_TYPE_LIMIT] = {
+static const char	*g_ope_strings[E_OPE_TYPE_LIMIT] = {
 	"|",
 	"<",
 	"<<",
@@ -8,17 +8,16 @@ static const char	*ope_strings[E_OPE_TYPE_LIMIT] = {
 	">>",
 };
 
+// TODO handle heredoc
 bool	is_filename(t_ast *node)
 {
-	// une leaf est un filename si prev est une redir qui n'a pas de filename
 	if (!node)
 		return (false);
-	// TODO handle heredoc
-	if (node->type == E_OPE && node->ope.type != E_PIPE)
+	if (node->type == E_OPE && node->s_ope.type != E_PIPE)
 	{
-		if (node->ope.left && node->ope.left->type == E_LEAF)
+		if (node->s_ope.left && node->s_ope.left->type == E_LEAF)
 		{
-			if (node->ope.left->leaf.type == E_FILENAME)
+			if (node->s_ope.left->s_leaf.type == E_FILENAME)
 				return (false);
 			return (true);
 		}
@@ -34,7 +33,7 @@ t_ope_type	string_to_ope_type(char *word)
 	index = 0;
 	while (index < E_OPE_TYPE_LIMIT)
 	{
-		if (strcmp(word, ope_strings[index]) == 0)
+		if (strcmp(word, g_ope_strings[index]) == 0)
 			return ((t_ope_type) index);
 		index++;
 	}
@@ -43,5 +42,5 @@ t_ope_type	string_to_ope_type(char *word)
 
 const char	*ope_type_to_string(t_ope_type type)
 {
-	return (ope_strings[type]);
+	return (g_ope_strings[type]);
 }
