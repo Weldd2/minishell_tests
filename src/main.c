@@ -1,10 +1,11 @@
 #include "minishell.h"
 
-int	main(void)
+int	main(__attribute__((unused)) int argc, __attribute__((unused)) char **argv, char **envp)
 {
 	char		*input;
 	t_ast_data	*ast_data;
 
+	ft_setenv(envp);
 	mgc_init();
 	while (1)
 	{

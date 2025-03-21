@@ -7,7 +7,7 @@ static ssize_t	char_count_until(char **input, ssize_t len, char until)
 	return (len);
 }
 
-static void remove_quotes(char *str)
+static void	remove_quotes(char *str)
 {
 	char	*src;
 	char	*dst;
@@ -20,7 +20,8 @@ static void remove_quotes(char *str)
 		{
 			*dst++ = '"';
 			src += 2;
-		} else if (*src == '"')
+		}
+		else if (*src == '"')
 			src++;
 		else
 			*dst++ = *src++;
@@ -43,8 +44,6 @@ static ssize_t	get_word_len(char **input)
 	}
 	return (len);
 }
-
-#include <string.h>
 
 char	*get_next_word(char **input)
 {

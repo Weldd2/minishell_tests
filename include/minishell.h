@@ -9,6 +9,7 @@
 # include <readline/readline.h>
 # include <readline/history.h>
 # include "mgc.h"
+# include "env.h"
 
 typedef enum e_node_type
 {
