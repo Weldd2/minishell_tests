@@ -33,5 +33,10 @@ char	*get_var(char *var_name)
 
 char	*get_var_value(char *var_name)
 {
-	return (get_var(var_name) + strlen(var_name) + 1);
+	char	*var_value;
+
+	var_value = get_var(var_name);
+	if (var_value)
+		return (get_var(var_name) + strlen(var_name) + 1);
+	return ("");
 }
