@@ -7,6 +7,7 @@ int	main(__attribute__((unused)) int argc, __attribute__((unused)) char **argv, 
 
 	ft_setenv(envp);
 	mgc_init();
+	set_var_value("HOME", "#");
 	while (1)
 	{
 		input = readline("minishell ");

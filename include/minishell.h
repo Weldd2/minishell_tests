@@ -10,6 +10,7 @@
 # include <readline/history.h>
 # include "mgc.h"
 # include "env.h"
+# include "builtins.h"
 
 typedef enum e_node_type
 {
@@ -83,5 +84,7 @@ t_ast		*handle_ope(t_ast_data *data, char *word);
 t_ope_type	string_to_ope_type(char *word);
 const char	*ope_type_to_string(t_ope_type type);
 bool		is_filename(t_ast *node);
+char		*str_strvjoin(int nb_args, ...);
+void	set_var_value(char *var_name, char *var_value);
 
 #endif
