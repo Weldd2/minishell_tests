@@ -1,10 +1,10 @@
 #include "minishell.h"
 
-static ssize_t	char_count_until(char **input, ssize_t len, char until)
+static ssize_t	count_chars_until(char **input, ssize_t pos, char until)
 {
-	while ((*input)[len] != until)
-		len++;
-	return (len);
+	while ((*input)[pos] && (*input)[pos] != until)
+		pos++;
+	return (pos);
 }
 
 static void	remove_quotes(char *str)
@@ -29,7 +29,7 @@ static void	remove_quotes(char *str)
 	*dst = '\0';
 }
 
-static ssize_t	get_word_len(char **input)
+static ssize_t	get_word_length(char **input)
 {
 	ssize_t	len;
 
@@ -37,58 +37,158 @@ static ssize_t	get_word_len(char **input)
 	while ((*input)[len] && !isspace((*input)[len]))
 	{
 		if ((*input)[len] == '"')
-			len += char_count_until(input, len + 1, '"');
-		if ((*input)[len] == '\'')
-			len += char_count_until(input, len + 1, '\'');
+			len = count_chars_until(input, len + 1, '"');
+		else if ((*input)[len] == '\'')
+			len = count_chars_until(input, len + 1, '\'');
 		len++;
 	}
 	return (len);
 }
 
-static void expand_variable(char *word, int w_index)
+static bool	is_variable_bracketed(char *word, int w_index)
 {
+	if (!word || word[w_index] != '$')
+		return (false);
+	w_index++;
+	if (word[w_index] == '{')
+	{
+		w_index++;
+		while (word[w_index] && word[w_index] != '}' && word[w_index] != ' ')
+			w_index++;
+	}
+	return (word[w_index] == '}');
+}
+
+static char	*extract_variable_name(char **word, int w_index, bool *bracket)
+{
+	size_t	start;
+	size_t	end;
+	size_t	name_len;
+	char	*var_name;
+
+	*bracket = is_variable_bracketed(*word, w_index);
+	start = w_index + 1 + *bracket;
+	end = start;
+	while ((*word)[end] && (*word)[end] != ' ' &&
+			(*word)[end] != '}' && (*word)[end] != '{' &&
+			(*word)[end] != '$')
+		end++;
+	name_len = end - start;
+	var_name = malloc(sizeof(char) * (name_len + 1));
+	if (!var_name)
+		return (NULL);
+	memcpy(var_name, &((*word)[start]), name_len);
+	var_name[name_len] = '\0';
+	return (var_name);
+}
+
+static size_t	compute_suffix_offset(int index, size_t var_name_len, bool bracketed)
+{
+	size_t	offset;
+
+	offset = index + 1 + var_name_len;
+	if (bracketed)
+		offset = offset + 2;
+	return (offset);
+}
+
+/*
+ * Constructs a new word with the variable expanded.
+ * It copies the prefix (up to the variable), appends the variable's value,
+ * and then appends the suffix (the remainder of the word).
+ */
+static char *construct_new_word(char *old_word, int index, const char *var_value, size_t suffix_offset)
+{
+	size_t	prefix_length;
+	size_t	var_value_length;
+	size_t	suffix_length;
+	size_t	new_length;
+	char	*new_word;
+
+	prefix_length = (size_t)index;
+	var_value_length = strlen(var_value);
+	suffix_length = strlen(old_word) - suffix_offset;
+	new_length = prefix_length + var_value_length + suffix_length;
+	new_word = malloc(new_length + 1);
+	if (!new_word)
+		return (NULL);
+	strncpy(new_word, old_word, prefix_length);
+	new_word[prefix_length] = '\0';
+	strcat(new_word, var_value);
+	strcat(new_word, old_word + suffix_offset);
+	return (new_word);
+}
+
+/*
+ * Expands the variable at the specified index in the word.
+ * It extracts the variable name, obtains its value, computes the suffix offset,
+ * builds the new word with the expanded variable, frees the old word, and returns
+ * the length of the inserted variable value.
+ */
+// TODO NORM
+static int	expand_variable(char **word, int index)
+{
+	bool	bracketed;
 	char	*var_name;
 	char	*var_value;
-	size_t	word_index;
-	size_t	index = 0;
+	char	*new_word;
+	size_t	var_name_length;
+	size_t	suffix_offset;
 
-	word_index = w_index + 1; // pour le signe $
-	while (word[word_index] && word[word_index] != ' ' && word[word_index != '}'])
-		word_index++;
-	var_name = malloc(sizeof(char) * word_index + 1);
-	word_index = w_index + 1;
-	word_index += word[1] == '{';
-	while (word[word_index] && word[word_index] != ' ' && word[word_index] != '}')
-	{
-		var_name[index] = word[word_index];
-		index++;
-		word_index++;
-	}
-	var_name[index] = '\0';
+	var_name = extract_variable_name(word, index, &bracketed);
+	bracketed = false;
+	if (!var_name)
+		return (0);
 	var_value = get_var_value(var_name);
-	printf("%s=%s\n", var_name, var_value);
+	var_name_length = strlen(var_name);
+	suffix_offset = compute_suffix_offset(index, var_name_length, bracketed);
+	new_word = construct_new_word(*word, index, var_value, suffix_offset);
 	free(var_name);
+	free(*word); // TODO DOUBLE FREE
+	*word = new_word;
+	return (int)strlen(var_value);
 }
 
-static void expand_word(char *word)
+
+/*
+ * Expands all variables in the word.
+ * Respects single quotes by not expanding variables within them.
+ * If an opening quote is not closed, prints an error message.
+ */
+// TODO check double quote
+/*
+	./minishell
+	minishell echo "$HOME"
+	Leaf -> type : func, name echo
+	minishell ehco '$HOME'
+	Leaf -> type : func, name ehco, args [1]: '$HOME' 
+	minishell exit
+*/
+static void	expand_word(char **word)
 {
 	bool	expand;
-	int		len;
+	int		index;
 
+	index = 0;
 	expand = true;
-	len = 0;
-	while (word[len])
+	while ((*word)[index])
 	{
-		if (word[len] == '"')
+		if ((*word)[index] == '\'')
 			expand = !expand;
-		if (word[len] == '$' && expand && (len > 0 || word[len - 1] != '\\'))
-			expand_variable(word, len);
-		len++;
+		if ((*word)[index] == '$' && expand && (index == 0 || (*word)[index - 1] != '\\'))
+			index += expand_variable(word, index);
+		else
+			index++;
 	}
 	if (!expand)
-		printf("ERROR PARSING -> \" not closed\n"); // throw error
+		printf("ERROR PARSING -> \" not closed\n"); // Handle error appropriately
 }
 
+/*
+ * Retrieves the next word from the input string.
+ * It skips leading spaces, extracts a word, performs variable expansion,
+ * removes quotes, and then returns the processed word.
+ */
 char	*get_next_word(char **input)
 {
 	char	*word;
@@ -96,7 +196,7 @@ char	*get_next_word(char **input)
 
 	while (**input && isspace(**input))
 		(*input)++;
-	len = get_word_len(input);
+	len = get_word_length(input);
 	word = mgc_alloc(sizeof(char), (len + 1));
 	if (!word)
 		return (NULL);
@@ -105,7 +205,7 @@ char	*get_next_word(char **input)
 	*input += len;
 	while (**input && isspace(**input))
 		(*input)++;
-	expand_word(word);
+	expand_word(&word);
 	remove_quotes(word);
 	return (word);
 }
