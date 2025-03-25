@@ -17,19 +17,21 @@ inline void	ft_setenv(void *e)
 	*env() = e;
 }
 
-char	*get_var(char *var_name)
+char *get_var(char *var_name)
 {
-	char	**env;
+	char **env = ft_getenv();
+	int len = strlen(var_name);
 
-	env = ft_getenv();
 	while (*env)
 	{
-		if (strncmp(*env, var_name, strlen(var_name)) == 0)
+		/* Vérifie que la chaîne commence par var_name et que le caractère suivant est '=' */
+		if (strncmp(*env, var_name, len) == 0 && (*env)[len] == '=')
 			return (*env);
 		env++;
 	}
 	return (NULL);
 }
+
 
 char	*get_var_value(char *var_name)
 {

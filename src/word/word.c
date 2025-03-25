@@ -71,7 +71,7 @@ static char	*extract_variable_name(char **word, int w_index, bool *bracket)
 	end = start;
 	while ((*word)[end] && (*word)[end] != ' ' &&
 			(*word)[end] != '}' && (*word)[end] != '{' &&
-			(*word)[end] != '$')
+			(*word)[end] != '$' && (*word)[end] != '"')
 		end++;
 	name_len = end - start;
 	var_name = malloc(sizeof(char) * (name_len + 1));
@@ -135,16 +135,18 @@ static int	expand_variable(char **word, int index)
 	size_t	var_name_length;
 	size_t	suffix_offset;
 
-	var_name = extract_variable_name(word, index, &bracketed);
 	bracketed = false;
+	var_name = extract_variable_name(word, index, &bracketed);
+	printf("var_name = %s\n", var_name);
 	if (!var_name)
 		return (0);
 	var_value = get_var_value(var_name);
+	printf("var_value = %s\n", var_value);
 	var_name_length = strlen(var_name);
 	suffix_offset = compute_suffix_offset(index, var_name_length, bracketed);
 	new_word = construct_new_word(*word, index, var_value, suffix_offset);
 	free(var_name);
-	free(*word); // TODO DOUBLE FREE
+	// free(*word); // TODO DOUBLE FREE
 	*word = new_word;
 	return (int)strlen(var_value);
 }
