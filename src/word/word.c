@@ -145,6 +145,7 @@ static int	expand_variable(char **word, int index)
 	var_name_length = strlen(var_name);
 	suffix_offset = compute_suffix_offset(index, var_name_length, bracketed);
 	new_word = construct_new_word(*word, index, var_value, suffix_offset);
+	mgc_add_block(new_word);
 	free(var_name);
 	// free(*word); // TODO DOUBLE FREE
 	*word = new_word;
