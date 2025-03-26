@@ -137,11 +137,9 @@ static int	expand_variable(char **word, int index)
 
 	bracketed = false;
 	var_name = extract_variable_name(word, index, &bracketed);
-	printf("var_name = %s\n", var_name);
 	if (!var_name)
 		return (0);
 	var_value = get_var_value(var_name);
-	printf("var_value = %s\n", var_value);
 	var_name_length = strlen(var_name);
 	suffix_offset = compute_suffix_offset(index, var_name_length, bracketed);
 	new_word = construct_new_word(*word, index, var_value, suffix_offset);
@@ -151,6 +149,31 @@ static int	expand_variable(char **word, int index)
 	return (int)strlen(var_value);
 }
 
+static void	expand_tilde(char **word)
+{
+	char	*home;
+	size_t	home_len;
+	size_t	old_len;
+	size_t	new_len;
+	char	*new_word;
+
+	if ((*word)[0] == '~' && ((*word)[1] == '\0' || (*word)[1] == '/'))
+	{
+		home = get_var_value("HOME");
+		if (!home)
+			return ;
+		home_len = strlen(home);
+		old_len = strlen(*word);
+		new_len = home_len + (old_len - 1);
+		new_word = malloc(new_len + 1);
+		if (!new_word)
+			return ;
+		strcpy(new_word, home);
+		strcat(new_word, *word + 1);
+		free(*word);
+		*word = new_word;
+	}
+}
 
 /*
  * Expands all variables in the word.
@@ -208,6 +231,7 @@ char	*get_next_word(char **input)
 	while (**input && isspace(**input))
 		(*input)++;
 	expand_word(&word);
+	expand_tilde(&word);
 	remove_quotes(word);
 	return (word);
 }
