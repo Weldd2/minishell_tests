@@ -1,10 +1,15 @@
 #ifndef MINISHELL_H
 # define MINISHELL_H
 
-# include <stdio.h>
+# include <stdarg.h>
 # include <stdlib.h>
-# include <string.h>
 # include <stdbool.h>
+# include <stdio.h>
+# include <string.h>
+# include <unistd.h>
+# include <sys/stat.h>
+# include <libgen.h>
+# include <limits.h>
 # include <ctype.h>
 # include <readline/readline.h>
 # include <readline/history.h>
@@ -85,6 +90,6 @@ t_ope_type	string_to_ope_type(char *word);
 const char	*ope_type_to_string(t_ope_type type);
 bool		is_filename(t_ast *node);
 char		*str_strvjoin(int nb_args, ...);
-void	set_var_value(char *var_name, char *var_value);
+char	*set_var_value(char *var_name, char *var_value);
 
 #endif

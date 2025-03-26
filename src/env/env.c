@@ -44,20 +44,29 @@ char	*get_var_value(char *var_name)
 	return ("");
 }
 
-void	set_var_value(char *var_name, char *var_value) // TODO handle adding
+char	*set_var_value(char *var_name, char *var_value)
 {
 	char	**env;
 	char	*new_var;
+	int		i;
 	int		len;
 
 	len = strlen(var_name);
 	env = ft_getenv();
 	new_var = str_strvjoin(3, var_name, "=", var_value);
-	while (*env)
+	// mgc_add_block(new_var);
+	i = 0;
+	while (env[i])
 	{
-		if (strncmp(*env, var_name, len) == 0 && (*env)[len] == '=')
-			*env = new_var;
-		env++;
+		if (strncmp(env[i], var_name, len) == 0 && env[i][len] == '=')
+			return (env[i] = new_var, env[i]);
+		i++;
 	}
-	return ;
+	char **new_env;
+	new_env = mgc_alloc(sizeof(char *), (i + 2));
+	memcpy(new_env, env, sizeof(char *) * i);
+	new_env[i] = new_var;
+	new_env[i + 1] = NULL;
+	ft_setenv(new_env);
+	return (new_env[i]);
 }
