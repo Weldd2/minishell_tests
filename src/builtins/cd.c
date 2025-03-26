@@ -1,8 +1,9 @@
 #include "builtins.h"
 
-int	cd(char *path) // TODO ongoing
+
+int	cd(char *path)
 {
-	struct stat sb;
+	struct stat	sb;
 
 	if (access(path, F_OK) != 0)
 		return (perror("Le path n'existe pas"), 1);
@@ -14,5 +15,6 @@ int	cd(char *path) // TODO ongoing
 		return (perror("Accès refusé au répertoire"), 1);
 	if (chdir(path) != 0)
 		return (perror("Erreur lors du changement de répertoire"), 1);
+	
 	return (0);
 }
