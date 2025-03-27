@@ -44,7 +44,7 @@ static char	**va_list_to_args(int nb_arg, va_list va_args, bool *nflag)
 	return (args);
 }
 
-void	echo(int nb_arg, ...)
+void	ft_echo(int nb_arg, ...)
 {
 	va_list	va_args;
 	char	**args;

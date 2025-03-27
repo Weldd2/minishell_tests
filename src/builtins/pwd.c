@@ -1,6 +1,6 @@
 #include "builtins.h"
 
-int	pwd(void)
+int	ft_pwd(void)
 {
 	char		cwd[PATH_MAX];
 	

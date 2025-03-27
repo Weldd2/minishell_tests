@@ -25,7 +25,7 @@ bool	handle_char(char **path, char *test, char *var_name)
 	return (true);
 }
 
-int	cd(char *path)
+int	ft_cd(char *path)
 {
 	char		cwd[PATH_MAX];
 
@@ -33,8 +33,10 @@ int	cd(char *path)
 		path = get_var_value("HOME");
 	if (!path || *path == '\0' || strlen(path) == 0)
 		return (0);
-	if (!handle_char(&path, "--", "HOME") || !handle_char(&path, "-", "OLDPWD"))
-		return (0);
+	if (!handle_char(&path, "--", "HOME"))
+		return (fprintf(stderr, "cd: HOME not set"));
+	if (!handle_char(&path, "-", "OLDPWD"))
+		return (fprintf(stderr, "cd: OLDPWD not set"));
 	if (check_permissions(path))
 		return (perror("cd"), 1);
 	if (getcwd(cwd, sizeof(cwd)) == NULL)
