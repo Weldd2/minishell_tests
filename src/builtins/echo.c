@@ -44,15 +44,15 @@ static char	**va_list_to_args(int nb_arg, va_list va_args, bool *nflag)
 	return (args);
 }
 
-void	ft_echo(int nb_arg, ...)
+void	ft_echo(int argc, ...)
 {
 	va_list	va_args;
 	char	**args;
 	bool	nflag;
 
 	nflag = false;
-	va_start(va_args, nb_arg);
-	args = va_list_to_args(nb_arg, va_args, &nflag);
+	va_start(va_args, argc);
+	args = va_list_to_args(argc, va_args, &nflag);
 	if (args && *args)
 		print_args(args, nflag);
 	va_end(va_args);

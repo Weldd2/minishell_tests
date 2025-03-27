@@ -3,8 +3,8 @@
 
 # include "minishell.h"
 
-void	ft_echo(int nb_arg, ...);
-int		ft_cd(char *path);
-int		ft_pwd(void);
+void	ft_echo(int argc, ...);
+int		ft_cd(int argc, ...);
+int		ft_pwd(int argc, ...);
 
 #endif

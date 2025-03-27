@@ -25,18 +25,25 @@ bool	handle_char(char **path, char *test, char *var_name)
 	return (true);
 }
 
-int	ft_cd(char *path)
+int	ft_cd(int argc, ...)
 {
 	char		cwd[PATH_MAX];
+	va_list		va_args;
+	char		*path;
 
-	if (!path || *path == '\0' || strlen(path) == 0)
+	if (argc == 0)
 		path = get_var_value("HOME");
+	if (argc > 1)
+		fprintf(stderr, "cd: too many arguments\n");
+	va_start(va_args, argc);
+	path = va_arg(va_args, char *);
+	va_end(va_args);
 	if (!path || *path == '\0' || strlen(path) == 0)
 		return (0);
 	if (!handle_char(&path, "--", "HOME"))
-		return (fprintf(stderr, "cd: HOME not set"));
+		return (fprintf(stderr, "cd: HOME not set\n"), 1);
 	if (!handle_char(&path, "-", "OLDPWD"))
-		return (fprintf(stderr, "cd: OLDPWD not set"));
+		return (fprintf(stderr, "cd: OLDPWD not set\n"), 1);
 	if (check_permissions(path))
 		return (perror("cd"), 1);
 	if (getcwd(cwd, sizeof(cwd)) == NULL)
