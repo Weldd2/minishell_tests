@@ -59,10 +59,7 @@ t_ast	*handle_leaf(t_ast_data *data, char *word)
 	}
 	leaf = create_leaf(word, data->prev);
 	if (data && !data->prev)
-	{
-		data->prev = leaf;
 		data->root = leaf;
-	}
 	if (data->last_ope && !data->last_ope->s_ope.left)
 		data->last_ope->s_ope.left = leaf;
 	else if (data->last_ope && !data->last_ope->s_ope.right)

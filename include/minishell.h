@@ -15,7 +15,6 @@
 # include <readline/history.h>
 # include "mgc.h"
 # include "env.h"
-# include "builtins.h"
 
 typedef enum e_node_type
 {
@@ -90,6 +89,15 @@ t_ope_type	string_to_ope_type(char *word);
 const char	*ope_type_to_string(t_ope_type type);
 bool		is_filename(t_ast *node);
 char		*str_strvjoin(int nb_args, ...);
-char	*set_var_value(char *var_name, char *var_value);
+char		*set_var_value(char *var_name, char *var_value);
+void		meta_char_interpreting(char **word);
+int			expand_variable(char **word, int index);
+void		expand(char **word);
+void		strreplace(char **str, char *rep, int start, int end);
+void		special_char(char **word);
+
+void	ft_echo(int argc, t_args *args);
+int		ft_cd(int argc, t_args *args);
+int		ft_pwd(int argc, t_args *args);
 
 #endif

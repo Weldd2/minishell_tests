@@ -1,6 +1,6 @@
-#include "builtins.h"
+#include "minishell.h"
 
-int	ft_pwd(int argc, t_args *args)
+int	ft_pwd(int argc,__attribute__((unused)) t_args *args)
 {
 	char		cwd[PATH_MAX];
 

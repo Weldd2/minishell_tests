@@ -1,4 +1,4 @@
-#include "builtins.h"
+#include "minishell.h"
 
 void	ft_echo(int argc, t_args *args)
 {
@@ -6,7 +6,7 @@ void	ft_echo(int argc, t_args *args)
 	t_args	*current;
 
 	nflag = false;
-	if (!args || strlen(args->arg) == 0)
+	if (!args || argc == 0 || strlen(args->arg) == 0)
 		return ;
 	current = args;
 	printf("%s", current->arg);
