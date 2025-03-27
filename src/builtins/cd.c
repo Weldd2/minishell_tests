@@ -25,19 +25,15 @@ bool	handle_char(char **path, char *test, char *var_name)
 	return (true);
 }
 
-int	ft_cd(int argc, ...)
+int	ft_cd(int argc, t_args *args)
 {
 	char		cwd[PATH_MAX];
-	va_list		va_args;
 	char		*path;
 
-	if (argc == 0)
-		path = get_var_value("HOME");
 	if (argc > 1)
 		fprintf(stderr, "cd: too many arguments\n");
-	va_start(va_args, argc);
-	path = va_arg(va_args, char *);
-	va_end(va_args);
+	if (!args || strlen(args->arg) == 0)
+		path = args->arg;
 	if (!path || *path == '\0' || strlen(path) == 0)
 		return (0);
 	if (!handle_char(&path, "--", "HOME"))

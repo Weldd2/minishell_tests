@@ -1,6 +1,6 @@
 #include "builtins.h"
 
-int	ft_pwd(int argc, ...)
+int	ft_pwd(int argc, t_args *args)
 {
 	char		cwd[PATH_MAX];
 
