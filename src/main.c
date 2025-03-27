@@ -28,8 +28,7 @@ static inline char *readline_prompt(char *buf, size_t size)
 		return (NULL);
 	memcpy(buf, prefix, prefix_len);
 	memcpy(buf + prefix_len, cwd, cwd_len);
-	buf[prefix_len + cwd_len] = ' ';
-	buf[prefix_len + cwd_len + 1] = '\0';
+	memcpy(buf + prefix_len + cwd_len, "# ", 3);
 	return (buf);
 }
 
