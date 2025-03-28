@@ -59,12 +59,22 @@ void	expand_wildcard(char **word)
 	size_t  index;
 	char	*new_str;
 	t_dir	dir;
+	bool	expanding_single;
+	bool	expanding_double;
 
+	expanding_single = true;
+	expanding_double = true;
 	dir = explore_directory();
 	index = 0;
 	while ((*word)[index] && (*word)[index] != '*')
+	{
+		if ((*word)[index] == '\'')
+			expanding_single = !expanding_single;
+		if ((*word)[index] == '"')
+			expanding_double = !expanding_double;
 		index++;
-	if ((*word)[index] == '*')
+	}
+	if ((*word)[index] == '*' && expanding_single && expanding_double)
 	{
 		current = dir.head;
 		new_str = strdup("");
