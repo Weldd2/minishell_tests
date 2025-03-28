@@ -13,8 +13,21 @@
 # include <ctype.h>
 # include <readline/readline.h>
 # include <readline/history.h>
+# include <dirent.h>
 # include "mgc.h"
 # include "env.h"
+
+typedef struct	s_list
+{
+	char	*content;
+	struct s_list *next;
+}	t_list;
+
+typedef struct	s_dir
+{
+	int		nb_dir;
+	t_list	*head;
+}	t_dir;
 
 typedef enum e_node_type
 {
@@ -95,6 +108,8 @@ int			expand_variable(char **word, int index);
 void		expand(char **word);
 void		strreplace(char **str, char *rep, int start, int end);
 void		special_char(char **word);
+char	*ft_strjoin(char *s1, char *s2, bool free_s1, bool free_s2);
+void	lst_add_back(t_list **list, char *content);
 
 void	ft_echo(int argc, t_args *args);
 int		ft_cd(int argc, t_args *args);
