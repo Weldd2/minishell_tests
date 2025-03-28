@@ -26,8 +26,62 @@ static void	expand_tilde(char **word)
 	}
 }
 
+t_dir	explore_directory(void)
+{
+	t_list	*list = NULL;
+	struct dirent *ent;
+	struct stat st;
+	int count = 0;
+
+	DIR *rep = opendir(".");
+	if (rep == NULL)
+	{
+		perror("Erreur lors de l'ouverture du répertoire");
+		exit(EXIT_FAILURE);
+	}
+	while ((ent = readdir(rep)) != NULL)
+	{
+
+		if (ent->d_name[0] == '.' && (ent->d_name[1] == '\0' || (ent->d_name[1] == '.' && ent->d_name[2] == '\0')))
+			continue;
+		if (stat(ent->d_name, &st) == 0)
+		{
+			count++;
+			lst_add_back(&list, ent->d_name);
+		}
+	}
+	return ((t_dir) {.head = list, .nb_dir = count});
+}
+
+void	expand_wildcard(char **word)
+{
+	t_list  *current;
+	size_t  index;
+	char	*new_str;
+	t_dir	dir;
+
+	dir = explore_directory();
+	index = 0;
+	while ((*word)[index] && (*word)[index] != '*')
+		index++;
+	if ((*word)[index] == '*')
+	{
+		current = dir.head;
+		new_str = strdup("");
+		while (current)
+		{
+			new_str = ft_strjoin(new_str, current->content, true, false);
+			if (current->next)
+				new_str = ft_strjoin(new_str, " ", true, false);
+			current = current->next;
+		}
+		strreplace(word, new_str, index, index + 1);
+		free(new_str);
+	}
+}
 
 void	special_char(char **word)
 {
 	expand_tilde(word);
+	expand_wildcard(word);
 }
