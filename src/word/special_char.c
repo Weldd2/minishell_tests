@@ -50,6 +50,7 @@ t_dir	explore_directory(void)
 			lst_add_back(&list, ent->d_name);
 		}
 	}
+	free(rep);
 	return ((t_dir) {.head = list, .nb_dir = count});
 }
 
@@ -80,9 +81,9 @@ void	expand_wildcard(char **word)
 		new_str = strdup("");
 		while (current)
 		{
-			new_str = ft_strjoin(new_str, current->content, true, false);
+			new_str = ft_strjoin(new_str, current->content);
 			if (current->next)
-				new_str = ft_strjoin(new_str, " ", true, false);
+				new_str = ft_strjoin(new_str, " ");
 			current = current->next;
 		}
 		strreplace(word, new_str, index, index + 1);

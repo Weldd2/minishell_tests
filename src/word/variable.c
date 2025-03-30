@@ -30,6 +30,10 @@ static bool	locate(char *str, int *vst, int *vnst, int *vnd, int *vnnd)
 	return (true);
 }
 
+// vst = variable start (start on $ sign)
+// vnd = variable end
+// vnst = variable name start (after the $ and the bracket)
+// vnnd = variable name end
 void	expand(char **word)
 {
 	char	*var_name;
@@ -44,7 +48,7 @@ void	expand(char **word)
 	vnnd = 0;
 	while (locate(*word, &vst, &vnst, &vnd, &vnnd))
 	{
-		var_name = malloc(sizeof(char) * ((vnnd - vnst) + 1));
+		var_name = mgc_alloc(sizeof(char), ((vnnd - vnst) + 2));
 		var_name = strncpy(var_name, (*word) + vnst, vnnd);
 		var_name[((vnnd - vnst))] = '\0';
 		strreplace(word, get_var_value(var_name), vst, vnd);
