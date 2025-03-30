@@ -1,57 +1,52 @@
 #include "minishell.h"
 
-static char	*locate(char *str, int *start, int *end)
+static inline bool	is_bracketed(char *str, int i, int vst)
 {
-	int		i;
-	char	*var_name;
-	bool	bracket;
-	int		var_name_len;
-	bool	expanding;
+	return (str[i] == '}' && str[vst + 1] == '{');
+}
+
+static bool	locate(char *str, int *vst, int *vnst, int *vnd, int *vnnd)
+{
+	int	i;
 
 	i = 0;
-	expanding = true;
 	while (str[i] && str[i] != '$')
-	{
-		if (str[i] == '\'')
-			expanding = !expanding;
 		i++;
-	}
-	if (str[i] == '$' && expanding)
-	{
-		*start = i++;
-		bracket = (str[i] == '{');
-		while (str[i] && !isspace(str[i]) && str[i] != '}' && str[i] != '$'
-			&& str[i] != '"' && str[i] != '/') // TODO HANDLE { i.e echo $H{OME}
-			i++;
-		bracket = (bracket && str[i] == '}');
-		*end = i + bracket;
-		var_name_len = (*end - *start) - 1 - (2 * bracket);
-		var_name = mgc_alloc(sizeof(char), var_name_len + 1);
-		strncpy(var_name, str + *start + 1 + bracket, var_name_len);
-		var_name[var_name_len] = '\0';
-		return (var_name);
-	}
-	return ("");
+	if (str[i] != '$')
+		return (false);
+	*vst = i;
+	i++;
+	if (str[i] == '{')
+		i++;
+	*vnst = i;
+	while (str[i] && (isalnum(str[i]) || (i != *vnst && str[i] == '_')))
+		i++;
+	if (i == *vnst && str[i] == '$')
+		i++;
+	*vnnd = i;
+	*vnd = i + is_bracketed(str, i, *vst);
+	if (*vnst == *vnnd && !is_bracketed(str, i, *vst))
+		return (false);
+	return (true);
 }
 
 void	expand(char **word)
 {
 	char	*var_name;
-	int		start;
-	int		end;
+	int	vst;
+	int vnst;
+	int vnd;
+	int vnnd;
 
-	do
+	vst = 0;
+	vnst = 0;
+	vnd = 0;
+	vnnd = 0;
+	while (locate(*word, &vst, &vnst, &vnd, &vnnd))
 	{
-		start = 0;
-		end = 0;
-		var_name = locate(*word, &start, &end);
-		if (strlen(var_name) != 0)
-		{
-			char *var_value = get_var_value(var_name);
-			printf("var_value = %s\n", var_value);
-			strreplace(word, var_value, start, end);
-		}
-	} while (end != 0);
+		var_name = malloc(sizeof(char) * ((vnnd - vnst) + 1));
+		var_name = strncpy(var_name, (*word) + vnst, vnnd);
+		var_name[((vnnd - vnst))] = '\0';
+		strreplace(word, get_var_value(var_name), vst, vnd);
+	}
 }
-// TODO echo $HOME/workspace
-// /root/workspace

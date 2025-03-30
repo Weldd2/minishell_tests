@@ -55,8 +55,8 @@ t_dir	explore_directory(void)
 
 void	expand_wildcard(char **word)
 {
-	t_list  *current;
-	size_t  index;
+	t_list	*current;
+	size_t	index;
 	char	*new_str;
 	t_dir	dir;
 	bool	expanding_single;

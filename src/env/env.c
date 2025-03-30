@@ -38,6 +38,8 @@ char	*get_var_value(char *var_name)
 {
 	char	*var_value;
 
+	if (strncmp(var_name, "$", strlen("$")) == 0)
+		return (ft_itoa((int)getpid()));
 	var_value = get_var(var_name);
 	if (var_value)
 		return (get_var(var_name) + strlen(var_name) + 1);

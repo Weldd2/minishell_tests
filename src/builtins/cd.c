@@ -5,7 +5,7 @@ bool	check_permissions(char *path)
 	struct stat	sb;
 
 	return (
-		(access(path, F_OK || X_OK) != 0
+		(access(path, F_OK | X_OK) != 0
 		|| stat(path, &sb) != 0
 		|| !S_ISDIR(sb.st_mode))
 	);
@@ -32,8 +32,7 @@ int	ft_cd(int argc, t_args *args)
 
 	if (argc > 1)
 		fprintf(stderr, "cd: too many arguments\n");
-	if (!args || strlen(args->arg) == 0)
-		path = args->arg;
+	path = args->arg;
 	if (!path || *path == '\0' || strlen(path) == 0)
 		return (0);
 	if (!handle_char(&path, "--", "HOME"))

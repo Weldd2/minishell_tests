@@ -41,12 +41,7 @@ static void	remove_quotes(char *str)
 	dst = str;
 	while (*src)
 	{
-		if (*src == '\\' && *(src + 1) == '"')
-		{
-			*dst++ = '"';
-			src += 2;
-		}
-		else if (*src == '"')
+		if (*src == '"' || *src == '\'')
 			src++;
 		else
 			*dst++ = *src++;
@@ -68,6 +63,8 @@ char	*get_next_word(char **input)
 	strncpy(word, *input, len);
 	*input += len;
 	word[len] = '\0';
+	if (strlen(word) == 0)
+		return (word);
 	expand(&word);
 	special_char(&word);
 	remove_quotes(word);
