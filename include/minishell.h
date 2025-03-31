@@ -116,5 +116,6 @@ char		*ft_itoa(int n);
 void	ft_echo(int argc, t_args *args);
 int		ft_cd(int argc, t_args *args);
 int		ft_pwd(int argc, t_args *args);
+void	ft_export(int argc, t_args *args);
 
 #endif

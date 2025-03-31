@@ -39,6 +39,8 @@ int	main(__attribute__((unused)) int argc, __attribute__((unused)) char **argv, 
 	char		prompt[PATH_MAX + 20];
 
 	ft_setenv(envp);
+	t_args args =  (t_args){.next = NULL, .arg = strdup("TEST=test")};
+	ft_export(1, &args);
 	mgc_init();
 	while (1)
 	{
