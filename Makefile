@@ -78,7 +78,7 @@ $(OBJDIR)/%.o: %.c
 	$(CC) $(CFLAGS) $(INCS) -c $< -o $@
 
 gdb: debug
-	gdb -ex "b locate" -ex "r" ./$(NAME)
+	gdb ./$(NAME)
 
 # -----------------------------------------------------------------------------
 # Nettoyage des fichiers objets

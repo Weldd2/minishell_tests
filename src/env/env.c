@@ -56,7 +56,7 @@ char	*set_var_value(char *var_name, char *var_value)
 
 	len = strlen(var_name);
 	env = ft_getenv();
-	new_var = str_strvjoin(3, var_name, "=", var_value);
+	new_var = strvjoin(3, var_name, "=", var_value);
 	i = 0;
 	while (env[i])
 	{

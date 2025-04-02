@@ -1,52 +1,43 @@
 #include "minishell.h"
 
-static char	**va_list_to_args(int nb_arg, va_list va_args)
+char	*strvjoin(int nb_args, ...)
 {
-	int		i;
-	char	**args;
+	va_list		args;
+	size_t		total_length;
+	int			i;
+	const char	*str;
+	char		*result;
+	size_t		pos;
 
-	args = calloc(sizeof(char *), nb_arg + 1);
-	if (!args)
-		return (exit(EXIT_FAILURE), NULL);
-	i = -1;
-	while (++i < nb_arg)
-		args[i] = va_arg(va_args, char *);
-	return (args);
-}
-
-static int	get_new_str_size(char **args)
-{
-	int	r;
-
-	r = 0;
-	while (args && *args)
+	va_start(args, nb_args);
+	i = 0;
+	total_length = 0;
+	while (i < nb_args)
 	{
-		r += strlen(*args);
-		args++;
+		str = va_arg(args, const char*);
+		if (str)
+			total_length += strlen(str);
+		i++;
 	}
-	return (r);
-}
-
-char	*str_strvjoin(int nb_args, ...)
-{
-	va_list	ap;
-	char	**args;
-	char	*r;
-	int		index;
-
-	va_start(ap, nb_args);
-	args = va_list_to_args(nb_args, ap);
-	r = mgc_alloc(sizeof(char), get_new_str_size(args) + 1);
-	index = 0;
-	int	r_index = 0;
-	while (index < nb_args)
+	va_end(args);
+	result = malloc(total_length + 1);
+	if (!result)
+		return (NULL);
+	pos = 0;
+	va_start(args, nb_args);
+	i = 0;
+	while (i < nb_args)
 	{
-		strncpy(r + r_index, args[index], strlen(args[index]));
-		r_index += strlen(args[index]);
-		index++;
+		str = va_arg(args, const char*);
+		if (str)
+		{
+			size_t len = strlen(str);
+			memcpy(result + pos, str, len);
+			pos += len;
+		}
+		i++;
 	}
-	r[r_index] = '\0';
-	free(args);
-	va_end(ap);
-	return (r);
+	result[pos] = '\0';
+	va_end(args);
+	return (result);
 }
