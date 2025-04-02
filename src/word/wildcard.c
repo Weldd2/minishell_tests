@@ -112,11 +112,21 @@ char	*compute_pattern(char *pattern)
 void	expand_wildcard(char **word)
 {
 	size_t	index;
+	bool	expand_double;
+	bool	expand_single;
 	
 	index = 0;
+	expand_double = true;
+	expand_single = true;
 	while ((*word)[index] && !isspace((*word)[index]) && (*word)[index] != '*')
+	{
+		if ((*word)[index] == '\'')
+			expand_single = !expand_single;
+		if ((*word)[index] == '"')
+			expand_double = !expand_double;
 		index++;
-	if ((*word)[index] != '*')
+	}
+	if ((*word)[index] != '*' || !expand_double || !expand_single)
 		return ;
 	index = 0;
 	while ((*word)[index] && !isspace((*word)[index]))
